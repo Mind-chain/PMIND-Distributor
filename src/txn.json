@@ -1,11 +1,9 @@
-[
-  {
-    "timestamp": "2023-10-05T09:42:07.271Z",
-    "transactionHash": "0x210878fbe3c6d7081240153292d75748958cee3ff09cfe4618c6953938a14669",
-    "gasPrice": "51127353201",
-    "gasLimit": 200000,
-    "gasCost": "10225470640200000",
-    "walletBalance": "70864688187462629644950546",
-    "tokenBalance": "2500004923660000000000000000"
-  }
-]
+{
+  "timestamp": "2023-10-07T03:21:55.936Z",
+  "transactionHash": "0xac8981f38b228574b5a9dba31db790352c6c4bac55f629921dac35e79bcd4180",
+  "gasPrice": "51353279512",
+  "gasLimit": 200000,
+  "gasCost": "8550937278102144",
+  "walletBalance": "70864688137653476765172537",
+  "tokenBalance": "2499994333000000000000000000"
+}
