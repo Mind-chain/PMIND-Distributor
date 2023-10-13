@@ -6,8 +6,15 @@ const { abi, address, privateKey, RPC } = require('./config');
 // Constants
 const GAS_LIMIT = 200000;
 
+let transactionSent = false; // Flag to track if a transaction has been sent
+
 async function main() {
     try {
+        // If a transaction has already been sent, do nothing and return
+        if (transactionSent) {
+            return;
+        }
+
         // Initialize provider and wallet
         const provider = new ethers.providers.JsonRpcProvider(RPC);
         const wallet = new ethers.Wallet(privateKey, provider);
@@ -62,6 +69,9 @@ async function main() {
 
             fs.writeFileSync(path.join(__dirname, 'txn.json'), JSON.stringify(transactionHistory, null, 2));
 
+            // Set the transactionSent flag to true
+            transactionSent = true;
+
             // Start the countdown again after successfully sending the transaction
             startCountdown();
         } else {
@@ -86,6 +96,10 @@ function startCountdown() {
         if (countdownSeconds <= 0) {
             clearInterval(countdownInterval);
             logTimeUntilNextTransaction();
+
+            // Reset the transactionSent flag for the next transaction
+            transactionSent = false;
+
             // Call main() for the next transaction
             main();
         }
