@@ -3,9 +3,6 @@ const fs = require('fs');
 const path = require('path');
 const { abi, address, privateKey, RPC } = require('./config');
 
-// Constants
-const GAS_LIMIT = 200000;
-
 let transactionSent = false; // Flag to track if a transaction has been sent
 
 async function main() {
@@ -33,7 +30,6 @@ async function main() {
         const tokenBalance = await contract.balanceOf(wallet.address);
 
         console.log(`Gas price: ${ethers.utils.formatUnits(gasPrice, 'ether')}`);
-        console.log(`Gas limit: ${GAS_LIMIT}`);
         console.log(`Gas cost: ${ethers.utils.formatEther(gasCost)} MIND`);
         console.log(`Wallet balance: ${ethers.utils.formatEther(walletBalance)} MIND`);
         console.log(`Token balance of contract: ${ethers.utils.formatUnits(tokenBalance, 'ether')} PMIND`);
@@ -45,7 +41,7 @@ async function main() {
                 nonce: nonce,
                 to: address,
                 gasPrice: gasPrice,
-                gasLimit: GAS_LIMIT,
+                gasLimit: estimatedGas, // Dynamically calculated gas limit
                 value: ethers.utils.parseEther('0'),
                 data: contract.interface.encodeFunctionData('distributeRewards')
             };
@@ -61,7 +57,7 @@ async function main() {
                 timestamp: new Date().toISOString(),
                 transactionHash: txResponse.hash,
                 gasPrice: gasPrice.toString(),
-                gasLimit: GAS_LIMIT,
+                gasLimit: estimatedGas.toString(),
                 gasCost: gasCost.toString(),
                 walletBalance: walletBalance.toString(),
                 tokenBalance: tokenBalance.toString(),
