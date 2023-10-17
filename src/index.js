@@ -3,11 +3,15 @@ const fs = require('fs');
 const path = require('path');
 const { abi, address, privateKey, RPC } = require('./config');
 
-// Constants
-const GAS_LIMIT = 200000;
+let transactionSent = false; // Flag to track if a transaction has been sent
 
 async function main() {
     try {
+        // If a transaction has already been sent, do nothing and return
+        if (transactionSent) {
+            return;
+        }
+
         // Initialize provider and wallet
         const provider = new ethers.providers.JsonRpcProvider(RPC);
         const wallet = new ethers.Wallet(privateKey, provider);
@@ -26,7 +30,6 @@ async function main() {
         const tokenBalance = await contract.balanceOf(wallet.address);
 
         console.log(`Gas price: ${ethers.utils.formatUnits(gasPrice, 'ether')}`);
-        console.log(`Gas limit: ${GAS_LIMIT}`);
         console.log(`Gas cost: ${ethers.utils.formatEther(gasCost)} MIND`);
         console.log(`Wallet balance: ${ethers.utils.formatEther(walletBalance)} MIND`);
         console.log(`Token balance of contract: ${ethers.utils.formatUnits(tokenBalance, 'ether')} PMIND`);
@@ -38,7 +41,7 @@ async function main() {
                 nonce: nonce,
                 to: address,
                 gasPrice: gasPrice,
-                gasLimit: GAS_LIMIT,
+                gasLimit: estimatedGas, // Dynamically calculated gas limit
                 value: ethers.utils.parseEther('0'),
                 data: contract.interface.encodeFunctionData('distributeRewards')
             };
@@ -54,13 +57,16 @@ async function main() {
                 timestamp: new Date().toISOString(),
                 transactionHash: txResponse.hash,
                 gasPrice: gasPrice.toString(),
-                gasLimit: GAS_LIMIT,
+                gasLimit: estimatedGas.toString(),
                 gasCost: gasCost.toString(),
                 walletBalance: walletBalance.toString(),
                 tokenBalance: tokenBalance.toString(),
             };
 
             fs.writeFileSync(path.join(__dirname, 'txn.json'), JSON.stringify(transactionHistory, null, 2));
+
+            // Set the transactionSent flag to true
+            transactionSent = true;
 
             // Start the countdown again after successfully sending the transaction
             startCountdown();
@@ -86,6 +92,10 @@ function startCountdown() {
         if (countdownSeconds <= 0) {
             clearInterval(countdownInterval);
             logTimeUntilNextTransaction();
+
+            // Reset the transactionSent flag for the next transaction
+            transactionSent = false;
+
             // Call main() for the next transaction
             main();
         }
